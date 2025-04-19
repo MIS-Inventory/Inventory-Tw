@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100 w-full h-full">
+
+  <!-- Notification & Search Section -->
+  <div class="flex justify-between items-center p-4 bg-white shadow-sm">
+    <!-- Search Bar -->
+    <div class="flex items-center w-full max-w-md">
+      <input type="text" placeholder="Search products..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <!-- Notification & User Section -->
+    <div class="flex items-center gap-4">
+      <button class="text-gray-600 text-xl hover:text-blue-600 relative">
+        <i class="fas fa-bell"></i>
+        <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+      </button>
+      <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300">
+        <img src="https://via.placeholder.com/40" alt="User" class="w-full h-full object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <!-- Inventory Summary Table -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-700">Inventory Summary</h2>
+      <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+        <thead class="bg-gray-100 text-left text-gray-700 font-semibold">
+          <tr>
+            <th class="px-6 py-4">Category</th>
+            <th class="px-6 py-4">Total Products</th>
+            <th class="px-6 py-4">Top Selling</th>
+            <th class="px-6 py-4">Low Stock</th>
+            <th class="px-6 py-4">Out of Stock</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr class="border-t">
+            <td class="px-6 py-4">Wood</td>
+            <td class="px-6 py-4">45</td>
+            <td class="px-6 py-4">Wood Planks</td>
+            <td class="px-6 py-4">3</td>
+            <td class="px-6 py-4">1</td>
+          </tr>
+          <tr class="border-t">
+            <td class="px-6 py-4">Plastics</td>
+            <td class="px-6 py-4">30</td>
+            <td class="px-6 py-4">Plactics Pallets</td>
+            <td class="px-6 py-4">5</td>
+            <td class="px-6 py-4">2</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Product Listing Table -->
+    <section>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-gray-700">All Products</h2>
+        <div class="space-x-2">
+          <!-- Use Tailwind directly for button classes -->
+          <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-plus mr-2"></i>Add Product
+          </button>
+          <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-filter mr-2"></i>Filter
+          </button>
+          <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-download mr-2"></i>Download All
+          </button>
+        </div>
+      </div>
+      <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+        <thead class="bg-gray-100 text-left text-gray-700 font-semibold">
+          <tr>
+            <th class="px-6 py-4">Product</th>
+            <th class="px-6 py-4">Price</th>
+            <th class="px-6 py-4">Quantity</th>
+            <th class="px-6 py-4">Availability</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-600">
+          <tr class="border-t">
+            <td class="px-6 py-4">Metal</td>
+            <td class="px-6 py-4">$25.00</td>
+            <td class="px-6 py-4">15</td>
+            <td class="px-6 py-4 text-green-600">In Stock</td>
+          </tr>
+          <tr class="border-t">
+            <td class="px-6 py-4">Steel</td>
+            <td class="px-6 py-4">$50.00</td>
+            <td class="px-6 py-4">3</td>
+            <td class="px-6 py-4 text-yellow-500">Low Stock</td>
+          </tr>
+          <tr class="border-t">
+            <td class="px-6 py-4">Wood</td>
+            <td class="px-6 py-4">$90.00</td>
+            <td class="px-6 py-4">0</td>
+            <td class="px-6 py-4 text-red-600">Out of Stock</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
