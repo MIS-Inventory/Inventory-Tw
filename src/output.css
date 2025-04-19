@@ -780,3 +780,35 @@
     }
   }
 }
+
+/* maindashboard*/
+
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Avatar border ring */
+.avatar-ring {
+  border: 2px solid #ccc;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* Optional: Styling for notification icon if needed */
+.fa-bell:hover {
+  color: #1d4ed8; /* Tailwind's blue-700 */
+}
+
+/* Inventory Button Styling */
+.btn-blue {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium;
+}
+
+.btn-gray {
+  @apply bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium;
+}
+
+.btn-green {
+  @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium;
+}
