@@ -86,34 +86,34 @@
       <thead class="bg-gray-100 text-gray-700 font-semibold">
         <tr>
           <th class="px-6 py-4 text-left">Product</th>
-          <th class="px-6 py-4 text-left">Price</th>
           <th class="px-6 py-4 text-left">Quantity</th>
-          <th class="px-6 py-4 text-left">Availability</th>
         </tr>
       </thead>
       <tbody class="text-gray-700 divide-y divide-gray-200">
-        <tr>
-          <td class="px-6 py-4">Metal</td>
-          <td class="px-6 py-4">$25.00</td>
-          <td class="px-6 py-4">15</td>
-          <td class="px-6 py-4 text-green-600 font-medium">In Stock</td>
-        </tr>
-        <tr>
-          <td class="px-6 py-4">Steel</td>
-          <td class="px-6 py-4">$50.00</td>
-          <td class="px-6 py-4">3</td>
-          <td class="px-6 py-4 text-yellow-500 font-medium">Low Stock</td>
-        </tr>
-        <tr>
-          <td class="px-6 py-4">Wood</td>
-          <td class="px-6 py-4">$90.00</td>
-          <td class="px-6 py-4">0</td>
-          <td class="px-6 py-4 text-red-600 font-medium">Out of Stock</td>
-        </tr>
       </tbody>
     </table>
   </div>
 </section>
-
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/products')
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.querySelector('tbody');
+        tbody.innerHTML = '';
+  
+        data.forEach(product => {
+          const tr = document.createElement('tr');
+  
+          tr.innerHTML = `
+            <td class="px-6 py-4">${product.Product_Name}</td>
+            <td class="px-6 py-4"></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(error => console.error('Error loading products:', error));
+  });
+</script>
 </body>
 </html>

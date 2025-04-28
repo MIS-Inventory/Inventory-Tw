@@ -16,7 +16,7 @@ app.use(express.static('src'));
 
 // API endpoint
 app.get('/products', (req, res) => {
-  db.query('SELECT * FROM products', (err, results) => {
+  db.query('SELECT * FROM product_details', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
     } else {
