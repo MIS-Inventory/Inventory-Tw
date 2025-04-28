@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = 3000;
 
-// Database connection
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -11,12 +10,10 @@ const db = mysql.createConnection({
   database: 'mydb'
 });
 
-// Allow static files
 app.use(express.static('src'));
 
-// API endpoint
-app.get('/products', (req, res) => {
-  db.query('SELECT * FROM product_details', (err, results) => {
+app.get('/product', (req, res) => {
+  db.query('SELECT * FROM vwproductdetails', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
     } else {
@@ -25,7 +22,46 @@ app.get('/products', (req, res) => {
   });
 });
 
-// Start server
+app.get('/summary/total-products', (req, res) => {
+  db.query('SELECT SUM(Current_Quantity) AS Total_Products FROM vwTotalProductQuantities', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/summary/top-selling', (req, res) => {
+  db.query('SELECT * FROM vwTopSelling', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/summary/low-stock', (req, res) => {
+  db.query('SELECT * FROM vwLowStock', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/summary/out-of-stock', (req, res) => {
+  db.query('SELECT * FROM vwOutOfStock', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
