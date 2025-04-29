@@ -38,7 +38,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Today's Sales</h3>
-                <p class="text-2xl font-bold text-purple-600">30,000</p>
+                <p id="ExportNumber" class="text-2xl font-bold text-purple-600">Loading</p>
               </div>
              <i class="fa-solid fa-cash-register text-4xl text-purple-600"></i>
             </div>
@@ -47,7 +47,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Today's Total Orders</h3>
-                <p class="text-2xl font-bold text-yellow-500">270</p>
+                <p id="ImportNumber" class="text-2xl font-bold text-yellow-500">Loading</p>
               </div>
               <i class="fa-solid fa-truck-fast text-4xl text-yellow-500"></i>
               
@@ -57,7 +57,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Today's Revenue</h3>
-                <p class="text-2xl font-bold text-green-600">1000</p>
+                <p id="ExportPrice" class="text-2xl font-bold text-green-600">Loading</p>
               </div>
               <i class="fa-solid fa-sack-dollar text-4xl text-green-600"></i>
             </div>
@@ -66,6 +66,41 @@
       </header>
     </div>
   </main>
-
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toLocaleDateString('en-CA').split('T')[0];
+    fetch('/report/import')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data[0].Import_Date) {
+          const importDate = new Date(data[0].Import_Date).toLocaleDateString('en-CA'); // Convert to local timezone and get only the date part
+          if (importDate === today) {
+            document.getElementById('ImportNumber').textContent = data[0].ImportCount;
+          } else {
+            console.log('Import data is not from today.');
+          }
+        } else {
+          console.warn('Import_Date not found in response.');
+        }
+      })
+      .catch(err => console.error('Error loading imports:', err));
+    fetch('/report/export')
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          const exportDate = new Date(data[0].Export_Date).toLocaleDateString('en-CA');
+          if (exportDate === today) {
+            document.getElementById('ExportNumber').textContent = data[0].Export_Count;
+            document.getElementById('ExportPrice').textContent = '₱' + data[0].Total_Sell_Price;
+          } else {
+            console.log('Export data is not from today.');
+          }
+        } else {
+          console.warn('Export_Date not found in response.');
+        }
+      })
+      .catch(err => console.error('Error loading exports:', err));
+});
+  </script>
 </body>
 </html>

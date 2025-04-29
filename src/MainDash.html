@@ -40,7 +40,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Total Items</h3>
-                <p class="text-2xl font-bold text-blue-600">120</p>
+                <p id="total-products" class="text-2xl font-bold text-blue-600">Loading</p>
               </div>
               <i class="fas fa-box text-4xl text-blue-600"></i>
             </div>
@@ -51,7 +51,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Low Stock</h3>
-                <p class="text-2xl font-bold text-yellow-500">5</p>
+                <p id="low-stock" class="text-2xl font-bold text-yellow-500">Loading</p>
               </div>
               <i class="fas fa-exclamation-triangle text-4xl text-yellow-500"></i>
             </div>
@@ -62,7 +62,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-gray-700">Out of Stock</h3>
-                <p class="text-2xl font-bold text-red-600">2</p>
+                <p id="out-of-stock" class="text-2xl font-bold text-red-600">Loading</p>
               </div>
               <i class="fas fa-ban text-4xl text-red-600"></i>
             </div>
@@ -72,14 +72,12 @@
 
       <!-- Tables -->
       <div id="totalItemsTable" class="bg-white shadow-md rounded-lg p-6 mb-6 hidden">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Total Items Table</h3>
+        <h3 id="" class="text-lg font-semibold text-gray-700 mb-4">Total Items Table</h3>
         <table class="w-full border border-gray-300">
           <thead class="bg-gray-100">
             <tr><th class="border px-4 py-2">Product</th><th class="border px-4 py-2">Quantity</th></tr>
           </thead>
-          <tbody>
-            <tr><td class="border px-4 py-2">Item A</td><td class="border px-4 py-2">50</td></tr>
-            <tr><td class="border px-4 py-2">Item B</td><td class="border px-4 py-2">70</td></tr>
+          <tbody id="TotalItems">
           </tbody>
         </table>
       </div>
@@ -90,9 +88,7 @@
           <thead class="bg-gray-100">
             <tr><th class="border px-4 py-2">Product</th><th class="border px-4 py-2">Stock</th></tr>
           </thead>
-          <tbody>
-            <tr><td class="border px-4 py-2">Item X</td><td class="border px-4 py-2">2</td></tr>
-            <tr><td class="border px-4 py-2">Item Y</td><td class="border px-4 py-2">3</td></tr>
+          <tbody id="LowStock">
           </tbody>
         </table>
       </div>
@@ -103,8 +99,7 @@
           <thead class="bg-gray-100">
             <tr><th class="border px-4 py-2">Product</th><th class="border px-4 py-2">Status</th></tr>
           </thead>
-          <tbody>
-            <tr><td class="border px-4 py-2">Item Z</td><td class="border px-4 py-2">Out of Stock</td></tr>
+          <tbody id="OutOfStock">
           </tbody>
         </table>
       </div>
@@ -120,7 +115,79 @@
       });
       document.getElementById(id).classList.remove('hidden');
     }
-  </script>
+	document.addEventListener('DOMContentLoaded', () => {
+	fetch('/inventory/total-products')
+      .then(res => res.json())
+      .then(data => {
+        const total = data[0]?.Total_Products || 0;
+        document.getElementById('total-products').textContent = total;
+      })
+  fetch('/inventory/low-stock')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('low-stock').textContent = data.length || '0';
+  })
+  .catch(err => console.error('Error loading low stock:', err));
 
+  fetch('/inventory/out-of-stock')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('out-of-stock').textContent = data.length || '0';
+    })
+    .catch(err => console.error('Error loading out of stock:', err));
+
+  fetch('/dash/total-product-quantity')
+    .then(response => response.json())
+    .then(data => {
+      const tbody = document.getElementById('TotalItems');
+      tbody.innerHTML = '';
+      data.forEach(product => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-4 py-2">${product.Product_Name}</td>
+          <td class="border px-4 py-2">${product.Current_Quantity}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(error => console.error('Error loading products:', error));
+
+  fetch('/dash/low-stock')
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.getElementById('LowStock');
+        tbody.innerHTML = '';
+
+        data.forEach(product => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td class="border px-4 py-2">${product.Product_Name}</td>
+            <td class="border px-4 py-2">${product.Remaining_Stock}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(error => console.error('Error loading products:', error));
+
+  fetch('/dash/out-of-stock')
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.getElementById('OutOfStock');
+        tbody.innerHTML = '';
+
+        data.forEach(product => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td class="border px-4 py-2">${product.Product_Name}</td>
+            <td class="border px-4 py-2">Out</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(error => console.error('Error loading products:', error));
+	});
+  </script>
 </body>
-</html
+</html>

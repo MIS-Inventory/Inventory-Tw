@@ -12,7 +12,7 @@ const db = mysql.createConnection({
 
 app.use(express.static('src'));
 
-app.get('/product', (req, res) => {
+app.get('/inventory/product', (req, res) => {
   db.query('SELECT * FROM vwproductdetails', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
@@ -22,7 +22,7 @@ app.get('/product', (req, res) => {
   });
 });
 
-app.get('/summary/total-products', (req, res) => {
+app.get('/inventory/total-products', (req, res) => {
   db.query('SELECT SUM(Current_Quantity) AS Total_Products FROM vwTotalProductQuantities', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
@@ -32,7 +32,7 @@ app.get('/summary/total-products', (req, res) => {
   });
 });
 
-app.get('/summary/top-selling', (req, res) => {
+app.get('/inventory/top-selling', (req, res) => {
   db.query('SELECT * FROM vwTopSelling', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
@@ -42,7 +42,7 @@ app.get('/summary/top-selling', (req, res) => {
   });
 });
 
-app.get('/summary/low-stock', (req, res) => {
+app.get('/inventory/low-stock', (req, res) => {
   db.query('SELECT * FROM vwLowStock', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
@@ -52,8 +52,58 @@ app.get('/summary/low-stock', (req, res) => {
   });
 });
 
-app.get('/summary/out-of-stock', (req, res) => {
+app.get('/inventory/out-of-stock', (req, res) => {
   db.query('SELECT * FROM vwOutOfStock', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/dash/total-product-quantity', (req, res) => {
+  db.query('SELECT * FROM vwtotalproductquantities', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/dash/low-stock', (req, res) => {
+  db.query('SELECT * FROM vwlowstock', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/dash/out-of-stock', (req, res) => {
+  db.query('SELECT * FROM vwoutofstock', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/report/import', (req, res) => {
+  db.query('SELECT * FROM vwimportsummarybydate', (err, results) => {
+    if (err) {
+      res.status(500).send('Database query error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get('/report/export', (req, res) => {
+  db.query('SELECT * FROM vwexportsummarybydate', (err, results) => {
     if (err) {
       res.status(500).send('Database query error');
     } else {

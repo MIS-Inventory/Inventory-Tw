@@ -50,14 +50,14 @@
   
       <!-- Low Stock -->
       <div class="summary-item">
-        <p class="label low-stock">Loading</p>
-        <p id="low-stock">3</p>
+        <p class="label low-stock">Low Stock</p>
+        <p id="low-stock">Loading</p>
       </div>
   
       <!-- Out of Stock -->
       <div class="summary-item">
-        <p class="label out-of-stock">Loading</p>
-        <p id="out-of-stock">1</p>
+        <p class="label out-of-stock">Out of Stock</p>
+        <p id="out-of-stock">Loading</p>
       </div>
     </div>
   </div>
@@ -68,9 +68,9 @@
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-semibold text-gray-800">All Products</h2>
     <div class="space-x-2">
-      <button class="btn-secondary">
-        <i class="fas fa-filter mr-2"></i>Filter
-      </button>
+      <!-- <button class="btn-secondary"> -->
+        <!-- <i class="fas fa-filter mr-2"></i>Filter -->
+      <!-- </button> -->
       <button class="btn-success">
         <i class="fas fa-download mr-2"></i>Download All
       </button>
@@ -95,7 +95,7 @@
 </section>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    fetch('/summary/total-products')
+    fetch('/inventory/total-products')
       .then(res => res.json())
       .then(data => {
         const total = data[0]?.Total_Products || 0;
@@ -103,7 +103,7 @@
       })
       .catch(err => console.error('Error loading total products:', err));
 
-      fetch('/summary/top-selling')
+      fetch('/inventory/top-selling')
         .then(res => res.json())
         .then(data => {
           const top = data[0]?.Product_Name || 'N/A';
@@ -112,21 +112,21 @@
         })
         .catch(err => console.error('Error loading top selling:', err));
 
-    fetch('/summary/low-stock')
+    fetch('/inventory/low-stock')
       .then(res => res.json())
       .then(data => {
         document.getElementById('low-stock').textContent = data.length || '0';
       })
       .catch(err => console.error('Error loading low stock:', err));
 
-    fetch('/summary/out-of-stock')
+    fetch('/inventory/out-of-stock')
       .then(res => res.json())
       .then(data => {
         document.getElementById('out-of-stock').textContent = data.length || '0';
       })
       .catch(err => console.error('Error loading out of stock:', err));
       
-    fetch('/product')
+    fetch('/inventory/product')
       .then(response => response.json())
       .then(data => {
         const tbody = document.querySelector('tbody');
