@@ -10,146 +10,106 @@
 
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="output.css" />
 </head>
 <body class="bg-gray-100 w-full h-full">
 
-  <!-- Main Content -->
-  <main class="flex flex-col min-h-screen bg-gray-100">
+<main class="flex flex-col min-h-screen bg-gray-100">
+  <!-- Top Bar -->
+  <div class="flex justify-end items-center p-4 bg-white shadow-md">
+    <button class="relative mr-6">
+      <i class="fas fa-bell text-xl text-gray-600"></i>
+      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">!</span>
+    </button>
+    <div class="w-10 h-10 avatar-ring">
+      <img src="https://i.pravatar.cc/100" alt="User Avatar" class="w-full h-full object-cover rounded-full">
+    </div>
+  </div>
 
-    <!-- Top Bar with Notification and User Avatar -->
-    <div class="flex justify-end items-center p-4 bg-white shadow-md">
-      <button class="relative mr-6">
-        <i class="fas fa-bell text-xl text-gray-600"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">!</span>
-      </button>
-      <div class="w-10 h-10 avatar-ring">
-        <img src="https://i.pravatar.cc/100" alt="User Avatar" class="w-full h-full object-cover rounded-full">
-      </div>
+  <!-- Buttons -->
+  <div class="w-full p-10">
+    <div class="flex justify-center space-x-4 mb-6">
+      <button id="releasingBtn" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600">Releasing</button>
+      <button id="receivingBtn" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600">Receiving</button>
     </div>
 
-    <!-- buttons uwu -->
-    <div class="w-full h-full p-10">
-      <header class="mb-10">
-      <div class="flex justify-center space-x-4 mb-6">
-        <button id="releasingBtn" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none">
-        Releasing
-        </button>
-        <button id="receivingBtn" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none">
-        Receiving
-        </button>
-      </div>
-      <div class="bg-white shadow-md rounded-lg p-6">
-        <table id="dataTable" class="w-full table-auto border-collapse border border-gray-300">
+    <!-- Tables -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <!-- Releasing Table -->
+      <table id="releasingTable" class="w-full table-auto border-collapse border border-gray-300">
         <thead>
           <tr class="bg-gray-200">
-          <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
-          <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
-          <th class="border border-gray-300 px-4 py-2 text-left">Date</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Date</th>
           </tr>
         </thead>
-        <tbody>
-        </tbody>
-        </table>
-      </div>
-      </header>
-    </div>
+        <tbody></tbody>
+      </table>
 
-    <script>
-  const dataTable = document.getElementById("dataTable").querySelector("tbody");
+      <!-- Receiving Table -->
+      <table id="receivingTable" class="w-full table-auto border-collapse border border-gray-300 hidden">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const releasingTable = document.getElementById("releasingTable");
+  const receivingTable = document.getElementById("receivingTable");
   const releasingBtn = document.getElementById("releasingBtn");
   const receivingBtn = document.getElementById("receivingBtn");
 
-  // Internal mock data
-  const mockData = {
-    releasing: [
-      { item: "Item A", quantity: 10, date: "2023-10-01" },
-      { item: "Item B", quantity: 5, date: "2023-10-02" }
-    ],
-    receiving: [
-      { item: "Item C", quantity: 15, date: "2023-10-03" },
-      { item: "Item D", quantity: 20, date: "2023-10-04" }
-    ]
-  };
+  const releasingTbody = releasingTable.querySelector("tbody");
+  const receivingTbody = receivingTable.querySelector("tbody");
 
-  // Function to fetch data from the internal mock data
-  async function fetchData(type) {
-    try {
-      // martin uncomment this to use external database or just change it xD
-      /*
-      const response = await fetch('https://example.com/api/data'); 
-      const data = await response.json();
-      return data[type];
-      */
+  let productNames = {};
 
-      // Uses internal mock data by default
-      return mockData[type];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      return [];
-    }
-  }
+  fetch('/inventory/product')
+    .then(res => res.json())
+    .then(products => {
+      products.forEach(p => {
+        productNames[p.product_number] = p.product_name;
+      });
+      return fetch('/inventory/product-log');
+    })
+    .then(res => res.json())
+    .then(logs => {
+      logs.forEach(log => {
+        const targetTbody = log.change_amount < 0 ? releasingTbody : receivingTbody;
+        const tr = document.createElement('tr');
+        const productName = productNames[log.product_number] || `#${log.product_number}`;
+        tr.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2">${productName}</td>
+          <td class="border border-gray-300 px-4 py-2">${Math.abs(log.change_amount)}</td>
+          <td class="border border-gray-300 px-4 py-2">${new Date(log.changed_at).toLocaleDateString()}</td>
+        `;
+        targetTbody.appendChild(tr);
+      });
+    })
+    .catch(err => console.error('Error loading logs:', err));
 
-  // change table content here
-  async function updateTable(type) {
-    const data = await fetchData(type);
-    dataTable.innerHTML = "";
-    data.forEach((row) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="border border-gray-300 px-4 py-2">${row.item}</td>
-        <td class="border border-gray-300 px-4 py-2">${row.quantity}</td>
-        <td class="border border-gray-300 px-4 py-2">${row.date}</td>
-      `;
-      dataTable.appendChild(tr);
-    });
-  }
+  // Button toggle logic
+  releasingBtn.addEventListener("click", () => {
+    releasingTable.classList.remove("hidden");
+    receivingTable.classList.add("hidden");
+  });
 
-
-  releasingBtn.addEventListener("click", () => updateTable("releasing"));
-  receivingBtn.addEventListener("click", () => updateTable("receiving"));
-
- 
-  updateTable("releasing");
-</script>
-  </main>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date().toLocaleDateString('en-CA').split('T')[0];
-    fetch('/report/import')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data[0].Import_Date) {
-          const importDate = new Date(data[0].Import_Date).toLocaleDateString('en-CA'); // Convert to local timezone and get only the date part
-          if (importDate === today) {
-            document.getElementById('ImportNumber').textContent = data[0].ImportCount;
-          } else {
-            console.log('Import data is not from today.');
-          }
-        } else {
-          console.warn('Import_Date not found in response.');
-        }
-      })
-      .catch(err => console.error('Error loading imports:', err));
-    fetch('/report/export')
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          const exportDate = new Date(data[0].Export_Date).toLocaleDateString('en-CA');
-          if (exportDate === today) {
-            document.getElementById('ExportNumber').textContent = data[0].Export_Count;
-            document.getElementById('ExportPrice').textContent = '₱' + data[0].Total_Sell_Price;
-          } else {
-            console.log('Export data is not from today.');
-          }
-        } else {
-          console.warn('Export_Date not found in response.');
-        }
-      })
-      .catch(err => console.error('Error loading exports:', err));
+  receivingBtn.addEventListener("click", () => {
+    receivingTable.classList.remove("hidden");
+    releasingTable.classList.add("hidden");
+  });
 });
-  </script>
+</script>
+
 </body>
 </html>

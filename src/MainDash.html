@@ -86,7 +86,7 @@
         <h3 class="text-lg font-semibold text-gray-700 mb-4">Low Stock Table</h3>
         <table class="w-full border border-gray-300">
           <thead class="bg-gray-100">
-            <tr><th class="border px-4 py-2">Product</th><th class="border px-4 py-2">Stock</th></tr>
+            <tr><th class="border px-4 py-2">Product</th><th class="border px-4 py-2">Quantity</th></tr>
           </thead>
           <tbody id="LowStock">
           </tbody>
@@ -116,77 +116,47 @@
       document.getElementById(id).classList.remove('hidden');
     }
 	document.addEventListener('DOMContentLoaded', () => {
-	fetch('/inventory/total-products')
-      .then(res => res.json())
-      .then(data => {
-        const total = data[0]?.Total_Products || 0;
-        document.getElementById('total-products').textContent = total;
-      })
-  fetch('/inventory/low-stock')
+  fetch('/inventory/product')
   .then(res => res.json())
   .then(data => {
-    document.getElementById('low-stock').textContent = data.length || '0';
+    const totalQuantity = data.reduce((total, product) => total + product.quantity, 0);
+    document.getElementById('total-products').textContent = totalQuantity;
+    const lowStockCount = data.filter(product => product.stock_status === 'Low Stock').length;
+    const outOfStockCount = data.filter(product => product.stock_status === 'Out of Stock').length;
+    document.getElementById('low-stock').textContent = lowStockCount || '0';
+    document.getElementById('out-of-stock').textContent = outOfStockCount || '0';
+    const tbodyTotal = document.getElementById('TotalItems');
+    tbodyTotal.innerHTML = '';
+    data.forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${product.product_name}</td>
+        <td class="border px-4 py-2">${product.quantity}</td>
+      `;
+      tbodyTotal.appendChild(tr);
+    });
+    const tbodyLowStock = document.getElementById('LowStock');
+    tbodyLowStock.innerHTML = '';
+    data.filter(product => product.stock_status === 'Low Stock').forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${product.product_name}</td>
+        <td class="border px-4 py-2">${product.quantity}</td>
+      `;
+      tbodyLowStock.appendChild(tr);
+    });
+    const tbodyOutOfStock = document.getElementById('OutOfStock');
+    tbodyOutOfStock.innerHTML = '';
+    data.filter(product => product.stock_status === 'Out of Stock').forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${product.product_name}</td>
+        <td class="border px-4 py-2">Out</td>
+      `;
+      tbodyOutOfStock.appendChild(tr);
+    });
   })
-  .catch(err => console.error('Error loading low stock:', err));
-
-  fetch('/inventory/out-of-stock')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('out-of-stock').textContent = data.length || '0';
-    })
-    .catch(err => console.error('Error loading out of stock:', err));
-
-  fetch('/dash/total-product-quantity')
-    .then(response => response.json())
-    .then(data => {
-      const tbody = document.getElementById('TotalItems');
-      tbody.innerHTML = '';
-      data.forEach(product => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border px-4 py-2">${product.Product_Name}</td>
-          <td class="border px-4 py-2">${product.Current_Quantity}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    })
-    .catch(error => console.error('Error loading products:', error));
-
-  fetch('/dash/low-stock')
-      .then(response => response.json())
-      .then(data => {
-        const tbody = document.getElementById('LowStock');
-        tbody.innerHTML = '';
-
-        data.forEach(product => {
-          const tr = document.createElement('tr');
-
-          tr.innerHTML = `
-            <td class="border px-4 py-2">${product.Product_Name}</td>
-            <td class="border px-4 py-2">${product.Remaining_Stock}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(error => console.error('Error loading products:', error));
-
-  fetch('/dash/out-of-stock')
-      .then(response => response.json())
-      .then(data => {
-        const tbody = document.getElementById('OutOfStock');
-        tbody.innerHTML = '';
-
-        data.forEach(product => {
-          const tr = document.createElement('tr');
-
-          tr.innerHTML = `
-            <td class="border px-4 py-2">${product.Product_Name}</td>
-            <td class="border px-4 py-2">Out</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(error => console.error('Error loading products:', error));
+  .catch(err => console.error('Error loading products:', err));
 	});
   </script>
 </body>

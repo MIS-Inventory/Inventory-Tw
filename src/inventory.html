@@ -94,59 +94,93 @@
   </div>
 </section>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/inventory/total-products')
-      .then(res => res.json())
-      .then(data => {
-        const total = data[0]?.Total_Products || 0;
-        document.getElementById('total-products').textContent = total;
-      })
-      .catch(err => console.error('Error loading total products:', err));
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('/inventory/product-log')
+  .then(response => response.json())
+  .then(logs => {
+    const negativeTotals = {};
 
-      fetch('/inventory/top-selling')
-        .then(res => res.json())
-        .then(data => {
-          const top = data[0]?.Product_Name || 'N/A';
-          const el = document.getElementById('top-selling');
-          if (el) el.textContent = top;
+    logs.forEach(log => {
+      const productNum = log.product_number;
+      const change = log.change_amount;
+
+      if (change < 0) {
+        if (!negativeTotals[productNum]) {
+          negativeTotals[productNum] = 0;
+        }
+        negativeTotals[productNum] += change;
+      }
+    });
+    let topProduct = null;
+    let maxReduction = 0;
+    for (const [productNum, totalNegative] of Object.entries(negativeTotals)) {
+      if (totalNegative < maxReduction) {
+        maxReduction = totalNegative;
+        topProduct = productNum;
+      }
+    }
+    if (topProduct) {
+      fetch('/inventory/product')
+        .then(response => response.json())
+        .then(products => {
+          const product = products.find(p => p.product_number == topProduct);
+          document.getElementById('top-selling').textContent =
+            product ? product.product_name : `Product #${topProduct}`;
         })
-        .catch(err => console.error('Error loading top selling:', err));
-
-    fetch('/inventory/low-stock')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('low-stock').textContent = data.length || '0';
-      })
-      .catch(err => console.error('Error loading low stock:', err));
-
-    fetch('/inventory/out-of-stock')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('out-of-stock').textContent = data.length || '0';
-      })
-      .catch(err => console.error('Error loading out of stock:', err));
-      
-    fetch('/inventory/product')
-      .then(response => response.json())
-      .then(data => {
-        const tbody = document.querySelector('tbody');
-        tbody.innerHTML = '';
-  
-        data.forEach(product => {
-          const tr = document.createElement('tr');
-  
-          tr.innerHTML = `
-            <td class="px-6 py-4">${product.Product_Name}</td>
-            <td class="px-6 py-4">${product.Category_Name}</td>
-            <td class="px-6 py-4">${product.Vendor_Name}</td>
-            <td class="px-6 py-4">${product.Current_Quantity}</td>
-            <td class="px-6 py-4">${product.Status}</td>
-          `;
-          tbody.appendChild(tr);
+        .catch(() => {
+          document.getElementById('top-selling').textContent = `Product #${topProduct}`;
         });
-      })
-      .catch(error => console.error('Error loading products:', error));
+    } else {
+      document.getElementById('top-selling').textContent = 'No data';
+    }
+  })
+  .catch(error => {
+    console.error('Error loading product log:', error);
+    document.getElementById('top-selling').textContent = 'Error';
   });
+  let allProducts = [];
+  const renderTable = (products) => {
+    const tbody = document.querySelector('tbody');
+    tbody.innerHTML = '';
+    products.forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="px-6 py-4">${product.product_name}</td>
+        <td class="px-6 py-4">${product.category_name}</td>
+        <td class="px-6 py-4">${product.vendor_name}</td>
+        <td class="px-6 py-4">${product.quantity}</td>
+        <td class="px-6 py-4">${product.stock_status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  };
+fetch('/inventory/product')
+  .then(response => response.json())
+  .then(data => {
+    allProducts = data;
+    renderTable(allProducts);
+    let totalQuantity = 0;
+    let lowStockCount = 0;
+    let outOfStockCount = 0;
+    data.forEach(product => {
+      totalQuantity += product.quantity;
+      if (product.stock_status === 'Low Stock') lowStockCount++;
+      if (product.stock_status === 'Out of Stock') outOfStockCount++;
+    });
+    document.getElementById('total-products').textContent = totalQuantity;
+    document.getElementById('low-stock').textContent = lowStockCount;
+    document.getElementById('out-of-stock').textContent = outOfStockCount;
+  })
+  .catch(error => console.error('Error loading products:', error));
+  const searchInput = document.querySelector('input[type="text"]');
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = allProducts.filter(product =>
+      product.product_name.toLowerCase().includes(query)
+    );
+    renderTable(filtered);
+  });
+});
 </script>
 </body>
 </html>
