@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <img src="../src/img/Logo-NOBG.png" alt="Logo">
+
+            <h1>EVENT <span class="gray-text">HORIZON</span></h1>
+            <p>PUSHING BOUNDARIES,BUILDING FUTURES</p>
+        </div>
+        <div class="login-section">
+            <!-- Title and Subtitle moved outside the login-box -->
+            <div class="login-header">
+                <h1>EVENT <span class="gray-text">HORIZON</span></h1>
+                <p>PUSHING BOUNDARIES,BUILDING FUTURES</p>  
+            </div>
+            <div class="login-box">
+                <form id="loginForm">
+                    <div class="input-group">
+                        <span class="icon">👤</span>
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit">LOGIN</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            
+            if (username === "admin" && password === "123") {
+                
+                window.location.href = "Sidebar.html"; 
+            } else {
+                alert("Invalid username or password. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>

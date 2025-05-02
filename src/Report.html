@@ -30,41 +30,90 @@
       </div>
     </div>
 
-    <!-- Dashboard Summary Cards -->
+    <!-- buttons uwu -->
     <div class="w-full h-full p-10">
       <header class="mb-10">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-700">Today's Sales</h3>
-                <p id="ExportNumber" class="text-2xl font-bold text-purple-600">Loading</p>
-              </div>
-             <i class="fa-solid fa-cash-register text-4xl text-purple-600"></i>
-            </div>
-          </div>
-          <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-700">Today's Total Orders</h3>
-                <p id="ImportNumber" class="text-2xl font-bold text-yellow-500">Loading</p>
-              </div>
-              <i class="fa-solid fa-truck-fast text-4xl text-yellow-500"></i>
-              
-            </div>
-          </div>
-          <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-700">Today's Revenue</h3>
-                <p id="ExportPrice" class="text-2xl font-bold text-green-600">Loading</p>
-              </div>
-              <i class="fa-solid fa-sack-dollar text-4xl text-green-600"></i>
-            </div>
-          </div>
-        </div>
+      <div class="flex justify-center space-x-4 mb-6">
+        <button id="releasingBtn" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none">
+        Releasing
+        </button>
+        <button id="receivingBtn" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none">
+        Receiving
+        </button>
+      </div>
+      <div class="bg-white shadow-md rounded-lg p-6">
+        <table id="dataTable" class="w-full table-auto border-collapse border border-gray-300">
+        <thead>
+          <tr class="bg-gray-200">
+          <th class="border border-gray-300 px-4 py-2 text-left">Item</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        </table>
+      </div>
       </header>
     </div>
+
+    <script>
+  const dataTable = document.getElementById("dataTable").querySelector("tbody");
+  const releasingBtn = document.getElementById("releasingBtn");
+  const receivingBtn = document.getElementById("receivingBtn");
+
+  // Internal mock data
+  const mockData = {
+    releasing: [
+      { item: "Item A", quantity: 10, date: "2023-10-01" },
+      { item: "Item B", quantity: 5, date: "2023-10-02" }
+    ],
+    receiving: [
+      { item: "Item C", quantity: 15, date: "2023-10-03" },
+      { item: "Item D", quantity: 20, date: "2023-10-04" }
+    ]
+  };
+
+  // Function to fetch data from the internal mock data
+  async function fetchData(type) {
+    try {
+      // martin uncomment this to use external database or just change it xD
+      /*
+      const response = await fetch('https://example.com/api/data'); 
+      const data = await response.json();
+      return data[type];
+      */
+
+      // Uses internal mock data by default
+      return mockData[type];
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return [];
+    }
+  }
+
+  // change table content here
+  async function updateTable(type) {
+    const data = await fetchData(type);
+    dataTable.innerHTML = "";
+    data.forEach((row) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="border border-gray-300 px-4 py-2">${row.item}</td>
+        <td class="border border-gray-300 px-4 py-2">${row.quantity}</td>
+        <td class="border border-gray-300 px-4 py-2">${row.date}</td>
+      `;
+      dataTable.appendChild(tr);
+    });
+  }
+
+
+  releasingBtn.addEventListener("click", () => updateTable("releasing"));
+  receivingBtn.addEventListener("click", () => updateTable("receiving"));
+
+ 
+  updateTable("releasing");
+</script>
   </main>
   <script>
   document.addEventListener('DOMContentLoaded', () => {
