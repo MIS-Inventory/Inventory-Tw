@@ -7,6 +7,8 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -71,7 +73,7 @@
       <!-- <button class="btn-secondary"> -->
         <!-- <i class="fas fa-filter mr-2"></i>Filter -->
       <!-- </button> -->
-      <button class="btn-success">
+      <button class="btn-success" onclick="downloadPDF()">
         <i class="fas fa-download mr-2"></i>Download All
       </button>
     </div>
@@ -180,6 +182,37 @@ fetch('/inventory/product')
     );
     renderTable(filtered);
   });
+  window.downloadPDF = () => {
+  fetch('/inventory/product')
+    .then(response => response.json())
+    .then(products => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const tableColumn = ["Product", "Category", "Vendor", "Quantity", "Status"];
+      const tableRows = products.map(product => [
+        product.product_name,
+        product.category_name,
+        product.vendor_name,
+        product.quantity,
+        product.stock_status
+      ]);
+
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 20,
+        theme: 'grid'
+      });
+
+      doc.text("Inventory Report", 14, 15);
+      doc.save("inventory.pdf");
+    })
+    .catch(error => {
+      console.error("Failed to generate PDF:", error);
+      alert("Error generating PDF.");
+    });
+};
 });
 </script>
 </body>
