@@ -7,6 +7,8 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -32,39 +34,28 @@
       
       <button id="releasingBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Releasing</button>
       <button id="receivingBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Receiving</button>
-    
+      <div class="flex space-x-2">
+        <!-- Month Filter Dropdown -->
+        <select id="monthFilter" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
 
-    
-    <div class="flex space-x-2">
-      <!-- Month Filter Dropdown -->
-      <select id="monthFilter" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;">
-        <option value="" disabled selected class="text-black">Filter by Month</option>
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
-      </select>
-
-      <!-- Year Filter Dropdown -->
-      <select id="yearFilter" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;">
-        <option value="" disabled selected class="text-black">Filter by Year</option>
-        <option value="2025">2025</option>
-        <option value="2026">2026</option>
-        <option value="2027">2027</option>
-        <option value="2028">2028</option>
-        <option value="2029">2029</option>
-      </select>
+        <!-- Year Filter Dropdown -->
+        <input id="yearFilter" type="number" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;" value="2025" min="2025">
+      </div>
     </div>
   </div>
-</div>
 
     <!-- Tables -->
     <div class="bg-white shadow-md rounded-lg p-6">
@@ -93,58 +84,138 @@
       </table>
     </div>
     <div class="w-full p-10 flex justify-end">
-    <button id="printBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Print Report</button>
-      </div>
+    <button class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;" onclick="printCurrentTablePDF()">
+      Print Report
+    </button>
+    </div>
   </div>
 </main>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const releasingTable = document.getElementById("releasingTable");
-  const receivingTable = document.getElementById("receivingTable");
-  const releasingBtn = document.getElementById("releasingBtn");
-  const receivingBtn = document.getElementById("receivingBtn");
-
-  const releasingTbody = releasingTable.querySelector("tbody");
-  const receivingTbody = receivingTable.querySelector("tbody");
-
-  let productNames = {};
-
-  fetch('/inventory/product')
-    .then(res => res.json())
-    .then(products => {
-      products.forEach(p => {
-        productNames[p.product_number] = p.product_name;
-      });
-      return fetch('/inventory/product-log');
-    })
-    .then(res => res.json())
-    .then(logs => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const releasingTable = document.getElementById("releasingTable");
+    const receivingTable = document.getElementById("receivingTable");
+    const releasingBtn = document.getElementById("releasingBtn");
+    const receivingBtn = document.getElementById("receivingBtn");
+    const monthFilter = document.getElementById("monthFilter");
+    const yearFilter = document.getElementById("yearFilter");
+  
+    const releasingTbody = releasingTable.querySelector("tbody");
+    const receivingTbody = receivingTable.querySelector("tbody");
+  
+    let productNames = {};
+    let logs = [];
+  
+    const now = new Date();
+    monthFilter.value = now.getMonth() + 1;
+    yearFilter.value = now.getFullYear();
+  
+    fetch('/inventory/product')
+      .then(res => res.json())
+      .then(products => {
+        products.forEach(p => {
+          productNames[p.product_number] = p.product_name;
+        });
+        return fetch('/inventory/product-log');
+      })
+      .then(res => res.json())
+      .then(data => {
+        logs = data;
+        filterLogs();
+      })
+      .catch(err => console.error('Error loading logs:', err));
+  
+    releasingBtn.addEventListener("click", () => {
+      releasingTable.classList.remove("hidden");
+      receivingTable.classList.add("hidden");
+    });
+  
+    receivingBtn.addEventListener("click", () => {
+      receivingTable.classList.remove("hidden");
+      releasingTable.classList.add("hidden");
+    });
+  
+    monthFilter.addEventListener("change", filterLogs);
+    yearFilter.addEventListener("input", filterLogs);
+  
+    function filterLogs() {
+      releasingTbody.innerHTML = '';
+      receivingTbody.innerHTML = '';
+  
+      const selectedMonth = parseInt(monthFilter.value);
+      const selectedYear = parseInt(yearFilter.value);
+  
       logs.forEach(log => {
-        const targetTbody = log.change_amount < 0 ? releasingTbody : receivingTbody;
-        const tr = document.createElement('tr');
-        const productName = productNames[log.product_number] || `#${log.product_number}`;
-        tr.innerHTML = `
-          <td class="border border-gray-300 px-4 py-2">${productName}</td>
-          <td class="border border-gray-300 px-4 py-2">${Math.abs(log.change_amount)}</td>
-          <td class="border border-gray-300 px-4 py-2">${new Date(log.changed_at).toLocaleDateString()}</td>
-        `;
-        targetTbody.appendChild(tr);
+        const logDate = new Date(log.changed_at);
+        const logMonth = logDate.getMonth() + 1;
+        const logYear = logDate.getFullYear();
+  
+        if (logMonth === selectedMonth && logYear === selectedYear) {
+          const tr = document.createElement('tr');
+          const productName = productNames[log.product_number] || `#${log.product_number}`;
+          tr.innerHTML = `
+            <td class="border border-gray-300 px-4 py-2">${productName}</td>
+            <td class="border border-gray-300 px-4 py-2">${Math.abs(log.change_amount)}</td>
+            <td class="border border-gray-300 px-4 py-2">${logDate.toLocaleDateString()}</td>
+          `;
+          if (log.change_amount < 0) {
+            releasingTbody.appendChild(tr);
+          } else {
+            receivingTbody.appendChild(tr);
+          }
+        }
       });
-    })
-    .catch(err => console.error('Error loading logs:', err));
+    }
+    window.printCurrentTablePDF = () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  // Button toggle logic
-  releasingBtn.addEventListener("click", () => {
-    releasingTable.classList.remove("hidden");
-    receivingTable.classList.add("hidden");
-  });
+      const releasingTable = document.getElementById("releasingTable");
+      const receivingTable = document.getElementById("receivingTable");
 
-  receivingBtn.addEventListener("click", () => {
-    receivingTable.classList.remove("hidden");
-    releasingTable.classList.add("hidden");
+      let activeTable;
+      let reportTitle;
+
+      if (!releasingTable || !receivingTable) {
+        alert("Tables not found in this view.");
+        return;
+      }
+
+      if (!releasingTable.classList.contains("hidden")) {
+        activeTable = releasingTable;
+        reportTitle = "Releasing Report";
+      } else if (!receivingTable.classList.contains("hidden")) {
+        activeTable = receivingTable;
+        reportTitle = "Receiving Report";
+      } else {
+        alert("No table is currently visible.");
+        return;
+      }
+
+      const rows = Array.from(activeTable.querySelectorAll("tbody tr")).map(row =>
+        Array.from(row.children).map(cell => cell.textContent.trim())
+      );
+
+      if (rows.length === 0) {
+        alert("No data to print.");
+        return;
+      }
+
+      const headers = Array.from(activeTable.querySelectorAll("thead th")).map(th =>
+        th.textContent.trim()
+      );
+
+      doc.text(reportTitle, 14, 15);
+      doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: 20,
+        theme: "grid"
+      });
+
+      doc.save(`${reportTitle.replace(/\s+/g, "_").toLowerCase()}.pdf`);
+    };
   });
-});
 </script>
 
 </body>
