@@ -26,12 +26,45 @@
     </div>
   </div>
 
-  <!-- Buttons -->
-  <div class="w-full p-10">
-    <div class="flex justify-center space-x-4 mb-6">
-      <button id="releasingBtn" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600">Releasing</button>
-      <button id="receivingBtn" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600">Receiving</button>
+  <!-- Buttons and Dropdowns -->
+  <div class="w-full p-10 flex justify-end">
+    <div class="flex space-x-2 mb-6">
+      
+      <button id="releasingBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Releasing</button>
+      <button id="receivingBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Receiving</button>
+    
+
+    
+    <div class="flex space-x-2">
+      <!-- Month Filter Dropdown -->
+      <select id="monthFilter" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;">
+        <option value="" disabled selected class="text-black">Filter by Month</option>
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+
+      <!-- Year Filter Dropdown -->
+      <select id="yearFilter" class="px-4 py-2 border rounded-lg text-white hover:opacity-90" style="background-color: #cc6525;">
+        <option value="" disabled selected class="text-black">Filter by Year</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+      </select>
     </div>
+  </div>
+</div>
 
     <!-- Tables -->
     <div class="bg-white shadow-md rounded-lg p-6">
@@ -59,6 +92,9 @@
         <tbody></tbody>
       </table>
     </div>
+    <div class="w-full p-10 flex justify-end">
+    <button id="printBtn" class="px-6 py-2 text-white font-semibold rounded-lg hover:opacity-90" style="background-color: #cc6525;">Print Report</button>
+      </div>
   </div>
 </main>
 
